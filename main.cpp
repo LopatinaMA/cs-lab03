@@ -2,6 +2,8 @@
 #include "histogram.h"
 #include <iostream>
 #include <vector>
+
+
 using namespace std;
 
 
@@ -48,7 +50,7 @@ vector<size_t> make_histogram(const vector<double>& numbers, size_t bin_count)
     return bins;
 }
 
-show_histogram_text(const vector<size_t>& bins)
+void show_histogram_text(const vector<size_t>& bins)
 {
     const size_t SCREEN_WIDTH = 80;
     const size_t MAX_ASTERISK = SCREEN_WIDTH -3-1;
@@ -87,6 +89,24 @@ show_histogram_text(const vector<size_t>& bins)
     }
 }
 
+
+bool proverka(string bin_colour){
+
+    return (bin_colour[0] == '#') || (bin_colour.find(' ') == string::npos);
+}
+
+vector<string> input (size_t bin_count){
+    vector<string> bin_colour(bin_count);
+    for(int i = 0; i < bin_count; i++){
+    cerr << "Enter colour: ";
+        cin >> bin_colour[i];
+        while (!proverka(bin_colour[i])){
+            cin >> bin_colour[i];
+        }
+    }
+    return bin_colour;
+}
+
 int main()
 {
     //Ввод данных
@@ -96,9 +116,11 @@ int main()
 
     const auto numbers = input_numbers(number_count);
 
-    size_t bin_count;
+    size_t bin_count;               //кол-во столбцов
     cerr << "Enter bin count:" ;
     cin >> bin_count;
+
+    vector<string> bin_colour = input(bin_count);
 
 
     //Рассчет гистограммы
@@ -106,7 +128,7 @@ int main()
 
     //Вывод гистограммы
 
-    show_histogram_svg(bins);
+    show_histogram_svg(bins, bin_colour);
 
     return 0;
 }
