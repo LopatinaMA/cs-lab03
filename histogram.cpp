@@ -25,3 +25,8 @@ void find_minmax(vector<double> numbers, double& min, double& max)
     }
     // (здесь код поиска минимума и максимума)
 }
+
+bool proverka(string bin_colour){
+
+    return (bin_colour[0] == '#') || (bin_colour.find(' ') == string::npos);
+}

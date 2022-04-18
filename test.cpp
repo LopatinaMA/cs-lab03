@@ -49,6 +49,17 @@ void test_empty() {        //пустой массив
     assert(max == -1000);
 }
 
+void test_proverka_positive(){        //
+    assert (proverka("#red") == true);
+    assert (proverka("dhfv dfvbdf") == false);
+    assert (proverka("green") == true);
+}
+
+void test_proverka_negative(){
+    assert (proverka("red") == false);
+    assert (proverka("asdf d") == true);
+    assert (proverka("#black") == false);
+}
 
 int
 main() {

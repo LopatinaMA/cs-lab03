@@ -90,10 +90,6 @@ void show_histogram_text(const vector<size_t>& bins)
 }
 
 
-bool proverka(string bin_colour){
-
-    return (bin_colour[0] == '#') || (bin_colour.find(' ') == string::npos);
-}
 
 vector<string> input (size_t bin_count){
     vector<string> bin_colour(bin_count);
