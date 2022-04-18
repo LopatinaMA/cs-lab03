@@ -1,4 +1,5 @@
 #include "histogram.h"
+#include "SVG.h"
 #include <iostream>
 
 #include <cassert>
@@ -61,6 +62,13 @@ void test_proverka_negative(){
     assert (proverka("#black") == false);
 }
 
+void test_svg_text(){
+    double left = 50;
+    double baseline = 100;
+    string text = "Histogram";
+    svg_text(left, baseline, text);
+}
+
 int
 main() {
     test_positive();
@@ -68,4 +76,6 @@ main() {
     test_same();
     test_one();
     test_empty();
+    test_proverka_positive();
+    test_svg_text();
 }
