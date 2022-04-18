@@ -44,7 +44,7 @@ void show_histogram_svg(const vector<size_t>& bins, vector<string> bin_colour)
     const auto BIN_HEIGHT = 30;
     const auto BLOCK_WIDTH = 10;
 
-    size_t TXT = 35;
+    size_t TXT = (IMAGE_WIDTH - TEXT_WIDTH) / BLOCK_WIDTH;
 
     svg_begin(IMAGE_WIDTH, IMAGE_HEIGHT);
 
