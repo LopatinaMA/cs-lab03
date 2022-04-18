@@ -44,6 +44,8 @@ void show_histogram_svg(const vector<size_t>& bins, vector<string> bin_colour)
     const auto BIN_HEIGHT = 30;
     const auto BLOCK_WIDTH = 10;
 
+    size_t TXT = 35;
+
     svg_begin(IMAGE_WIDTH, IMAGE_HEIGHT);
 
     size_t max_bin = bins[0];       //Максимальная высота столбца
@@ -60,12 +62,12 @@ void show_histogram_svg(const vector<size_t>& bins, vector<string> bin_colour)
     {
         size_t height = bins[i];
         //Проверить, нужно ли масштабировать данные, если нужно, пересчитать height
-        if (max_bin > MAX_ASTERISK)
+        if (max_bin > TXT)
         {
-            height = MAX_ASTERISK*(static_cast<double> (bins[i]) / max_bin);
+            height = TXT*(static_cast<double> (bins[i]) / max_bin);
         }
         const double bin_width = BLOCK_WIDTH * height;
-        svg_text(TEXT_LEFT, top + TEXT_BASELINE, to_string(height));
+        svg_text(TEXT_LEFT, top + TEXT_BASELINE, to_string(bins[i]));
         svg_rect(TEXT_WIDTH, top, bin_width, BIN_HEIGHT, bin_colour[i], "red");
         top += BIN_HEIGHT;
     }
