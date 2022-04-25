@@ -56,17 +56,14 @@ void test_proverka_positive(){        //
     assert (proverka("green") == true);
 }
 
-void test_proverka_negative(){
-    assert (proverka("red") == false);
-    assert (proverka("asdf d") == true);
-    assert (proverka("#black") == false);
-}
-
 void test_svg_text(){
     double left = 50;
     double baseline = 100;
     string text = "Histogram";
     svg_text(left, baseline, text);
+    assert (left == 50);
+    assert (baseline == 100);
+    assert (text == "Histogram");
 }
 
 int
