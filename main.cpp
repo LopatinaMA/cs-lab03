@@ -2,7 +2,7 @@
 #include "histogram.h"
 #include <iostream>
 #include <vector>
-
+#include <curl/curl.h>
 
 using namespace std;
 
@@ -130,6 +130,7 @@ vector<string> input (size_t bin_count)
 
 int main()
 {
+    curl_global_init(CURL_GLOBAL_ALL);
     Input data;
 
     //¬вод данных
