@@ -128,8 +128,19 @@ vector<string> input (size_t bin_count)
     return bin_colour;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+
+    if (argc > 1){
+         cout << "argc = " << argc << '\n';
+        for(size_t i = 0; i < argc; i++)
+        {
+            cout << "argv[" << i << "]= " << argv[i] << '\n';
+        }
+        return 0;
+    }
+
+
     curl_global_init(CURL_GLOBAL_ALL);
     Input data;
 
