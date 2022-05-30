@@ -6,7 +6,10 @@
 
 using namespace std;
 
-
+struct Input {
+    vector<double> numbers;
+    size_t bin_count;
+};
 
 // SVG
 
@@ -20,21 +23,41 @@ vector <double> input_numbers (istream& in, size_t count)
     return result;
 }
 
-vector<size_t> make_histogram(const vector<double>& numbers, size_t bin_count)
+
+Input read_input(istream& in) {
+    Input data;
+
+    size_t number_count;
+    cerr << "Enter number count: ";
+    in >> number_count;
+
+    cerr << "Enter numbers: ";
+    data.numbers = input_numbers(in, number_count);
+
+
+    size_t bin_count;               //кол-во столбцов
+    cerr << "Enter bin count:" ;
+    in >> bin_count;
+    data.bin_count = bin_count;
+
+    return data;
+}
+
+vector<size_t> make_histogram(Input data)
 {
     double min, max;
 
-    find_minmax(numbers, min, max) ;
-    vector<size_t> bins(bin_count,0); //переменная показывающая количество чисел в заданном диапазоне
-    double bin_size = (max - min)/ bin_count; //разме корзины
-    for(size_t i=0; i < numbers.size(); i++)
+    find_minmax(data.numbers, min, max) ;
+    vector<size_t> bins(data.bin_count,0); //переменная показывающая количество чисел в заданном диапазоне
+    double bin_size = (max - min)/ data.bin_count; //разме корзины
+    for(size_t i=0; i < data.numbers.size(); i++)
     {
         bool found = false;
-        for (size_t j = 0; j < (bin_count-1) && !found; j++)
+        for (size_t j = 0; j < (data.bin_count-1) && !found; j++)
         {
             auto lo = min + j * bin_size;       //Нижняя граница корзины
             auto hi = min + (j + 1) * bin_size;     //Верхняя граница корзины
-            if ((lo <= numbers[i]) && (numbers[i] < hi))
+            if ((lo <= data.numbers[i]) && (data.numbers[i] < hi))
             {
                 bins[j]++;
                 found = true;
@@ -42,7 +65,7 @@ vector<size_t> make_histogram(const vector<double>& numbers, size_t bin_count)
         }
         if (!found)     //Для максимального числа
         {
-            bins [bin_count-1]++;
+            bins [data.bin_count-1]++;
 
         }
     }
@@ -104,26 +127,20 @@ vector<string> input (size_t bin_count){
 
 int main()
 {
+    Input data;
+
     //Ввод данных
-    size_t number_count;
-    cerr << "Enter number count:";
-    cin >> number_count;
-
-    const auto numbers = input_numbers(cin, number_count);
-
-    size_t bin_count;               //кол-во столбцов
-    cerr << "Enter bin count:" ;
-    cin >> bin_count;
-
+    data = read_input(cin);
+/*
     vector<string> bin_colour = input(bin_count);
-
+*/
 
     //Рассчет гистограммы
-    const auto bins = make_histogram(numbers, bin_count);
+    const auto bins = make_histogram(data);
 
     //Вывод гистограммы
-
+/*
     show_histogram_svg(bins, bin_colour);
-
+*/
     return 0;
 }
