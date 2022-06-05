@@ -3,9 +3,10 @@
 #include <iostream>
 #include <vector>
 #include <curl/curl.h>
+#include <sstream>
+#include <string>
 
 using namespace std;
-
 
 
 vector <double> input_numbers (istream& in, size_t count)
@@ -34,7 +35,7 @@ Input read_input(istream& in, bool promt)
     data.numbers = input_numbers(in, number_count);
 
 
-    size_t bin_count;               //кол-во столбцов
+    size_t bin_count;               //РєРѕР»-РІРѕ СЃС‚РѕР»Р±С†РѕРІ
     if (promt = true)
         cerr << "Enter bin count:" ;
     in >> bin_count;
@@ -43,27 +44,62 @@ Input read_input(istream& in, bool promt)
     return data;
 }
 
+
+size_t write_data(void* items, size_t item_size, size_t item_count, void* ctx)
+{
+    size_t data_size=item_size*item_count;
+    stringstream* buffer = reinterpret_cast<stringstream*>(ctx);
+    buffer->write(reinterpret_cast<const char*>(items), data_size);
+    return data_size;
+}
+
+
+Input download(const string& address)
+{
+    stringstream buffer;
+
+    curl_global_init(CURL_GLOBAL_ALL);
+    CURL *curl = curl_easy_init();
+    if(curl)
+    {
+        CURLcode res;
+        curl_easy_setopt(curl, CURLOPT_URL, address.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+        res = curl_easy_perform(curl);
+        if (res)
+        {
+            cerr << curl_easy_strerror(res) << endl;
+            exit(1);
+        }
+    }
+    curl_easy_cleanup(curl);
+    return read_input(buffer, false);
+
+}
+
+
 vector<size_t> make_histogram(Input data)
 {
     double min, max;
 
     find_minmax(data.numbers, min, max) ;
-    vector<size_t> bins(data.bin_count,0); //переменная показывающая количество чисел в заданном диапазоне
-    double bin_size = (max - min)/ data.bin_count; //разме корзины
+    vector<size_t> bins(data.bin_count,0); //РїРµСЂРµРјРµРЅРЅР°СЏ РїРѕРєР°Р·С‹РІР°СЋС‰Р°СЏ РєРѕР»РёС‡РµСЃС‚РІРѕ С‡РёСЃРµР» РІ Р·Р°РґР°РЅРЅРѕРј РґРёР°РїР°Р·РѕРЅРµ
+    double bin_size = (max - min)/ data.bin_count; //СЂР°Р·РјРµ РєРѕСЂР·РёРЅС‹
     for(size_t i=0; i < data.numbers.size(); i++)
     {
         bool found = false;
         for (size_t j = 0; j < (data.bin_count-1) && !found; j++)
         {
-            auto lo = min + j * bin_size;       //Нижняя граница корзины
-            auto hi = min + (j + 1) * bin_size;     //Верхняя граница корзины
+            auto lo = min + j * bin_size;       //РќРёР¶РЅСЏСЏ РіСЂР°РЅРёС†Р° РєРѕСЂР·РёРЅС‹
+            auto hi = min + (j + 1) * bin_size;     //Р’РµСЂС…РЅСЏСЏ РіСЂР°РЅРёС†Р° РєРѕСЂР·РёРЅС‹
             if ((lo <= data.numbers[i]) && (data.numbers[i] < hi))
             {
                 bins[j]++;
                 found = true;
             }
         }
-        if (!found)     //Для максимального числа
+        if (!found)     //Р”Р»СЏ РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ С‡РёСЃР»Р°
         {
             bins [data.bin_count-1]++;
 
@@ -72,12 +108,13 @@ vector<size_t> make_histogram(Input data)
     return bins;
 }
 
+
 void show_histogram_text(const vector<size_t>& bins)
 {
     const size_t SCREEN_WIDTH = 80;
     const size_t MAX_ASTERISK = SCREEN_WIDTH -3-1;
 
-    size_t max_bin = bins[0];       //Максимальная высота столбца
+    size_t max_bin = bins[0];       //РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ РІС‹СЃРѕС‚Р° СЃС‚РѕР»Р±С†Р°
     for (size_t bin: bins)
     {
         if(max_bin < bin)
@@ -88,7 +125,7 @@ void show_histogram_text(const vector<size_t>& bins)
     for(size_t bin: bins)
     {
         size_t height = bin;
-        //Проверить, нужно ли масштабировать данные, если нужно, пересчитать height
+        //РџСЂРѕРІРµСЂРёС‚СЊ, РЅСѓР¶РЅРѕ Р»Рё РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°С‚СЊ РґР°РЅРЅС‹Рµ, РµСЃР»Рё РЅСѓР¶РЅРѕ, РїРµСЂРµСЃС‡РёС‚Р°С‚СЊ height
         if (max_bin > MAX_ASTERISK)
         {
             height = MAX_ASTERISK*(static_cast<double> (bin) / max_bin);
@@ -112,7 +149,6 @@ void show_histogram_text(const vector<size_t>& bins)
 }
 
 
-
 vector<string> input (size_t bin_count)
 {
     vector<string> bin_colour(bin_count);
@@ -128,41 +164,28 @@ vector<string> input (size_t bin_count)
     return bin_colour;
 }
 
+
 int main(int argc, char* argv[])
 {
 
-    if (argc > 1){
-        curl_global_init(CURL_GLOBAL_ALL);
-        CURL *curl = curl_easy_init();
-        if(curl)
-        {
-            CURLcode res;
-            curl_easy_setopt(curl, CURLOPT_URL, argv[1]);
-            res = curl_easy_perform(curl);
-            curl_easy_cleanup(curl);
-            if (res)
-            {
-                cerr << curl_easy_strerror(res) << endl;
-                exit(1);
-            }
-        }
-        return 0;
+    Input input;
+    if (argc > 1)
+    {
+        input = download(argv[1]);
+    }
+    else
+    {
+        input = read_input(cin, true);
     }
 
-
-    curl_global_init(CURL_GLOBAL_ALL);
-    Input data;
-
-    //Ввод данных
-    data = read_input(cin, true);
     /*
         vector<string> bin_colour = input(bin_count);
     */
 
-    //Рассчет гистограммы
-    const auto bins = make_histogram(data);
+    //Р Р°СЃСЃС‡РµС‚ РіРёСЃС‚РѕРіСЂР°РјРјС‹
+    const auto bins = make_histogram(input);
 
-    //Вывод гистограммы
+    //Р’С‹РІРѕРґ РіРёСЃС‚РѕРіСЂР°РјРјС‹
     /*
         show_histogram_svg(bins, bin_colour);
     */
