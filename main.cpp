@@ -86,74 +86,8 @@ Input download(const string& address)
 }
 
 
-vector<size_t> make_histogram(Input data)
-{
-    double min, max;
-
-    find_minmax(data.numbers, min, max) ;
-    vector<size_t> bins(data.bin_count,0); //переменная показывающая количество чисел в заданном диапазоне
-    double bin_size = (max - min)/ data.bin_count; //размеp корзины
-    for(size_t i=0; i < data.numbers.size(); i++)
-    {
-        bool found = false;
-        for (size_t j = 0; j < (data.bin_count-1) && !found; j++)
-        {
-            auto lo = min + j * bin_size;       //Нижняя граница корзины
-            auto hi = min + (j + 1) * bin_size;     //Верхняя граница корзины
-            if ((lo <= data.numbers[i]) && (data.numbers[i] < hi))
-            {
-                bins[j]++;
-                found = true;
-            }
-        }
-        if (!found)     //Для максимального числа
-        {
-            bins [data.bin_count-1]++;
-
-        }
-    }
-    return bins;
-}
 
 
-void show_histogram_text(const vector<size_t>& bins)
-{
-    const size_t SCREEN_WIDTH = 80;
-    const size_t MAX_ASTERISK = SCREEN_WIDTH -3-1;
-
-    size_t max_bin = bins[0];       //Максимальная высота столбца
-    for (size_t bin: bins)
-    {
-        if(max_bin < bin)
-        {
-            max_bin = bin;
-        }
-    }
-    for(size_t bin: bins)
-    {
-        size_t height = bin;
-        //Проверить, нужно ли масштабировать данные, если нужно, пересчитать height
-        if (max_bin > MAX_ASTERISK)
-        {
-            height = MAX_ASTERISK*(static_cast<double> (bin) / max_bin);
-        }
-        size_t procent = bin;
-        if (procent < 100)
-        {
-            cout << " ";
-        }
-        if (procent < 10)
-        {
-            cout<< " ";
-        }
-        cout << procent << "|";
-        for (size_t i = 0; i < height; i++)
-        {
-            cout<< "*";
-        }
-        cout << endl;
-    }
-}
 
 
 vector<string> inp (size_t bin_count)
@@ -174,39 +108,29 @@ vector<string> inp (size_t bin_count)
 
 int main(int argc, char* argv[])
 {
-    DWORD info = GetVersion();
-    printf("System info: %u or 0x%x\n", info, info);
 
-    DWORD mask =0x0000ffff;
-    DWORD version = info & mask;
-    DWORD version_major = version & 0x00ff;
-    DWORD version_minor = version & 0xff00;
-    printf("Windows v%u.%u", version_major, version_minor);
-
-    if((info & 0x8000'0000) == 0)
-    {
-        DWORD build = info >> 16;
-        printf(" (build %u)\n", build);
-    }
-
-    return 0;
-
-    Input input;
+        Input input;
     if (argc > 1)
     {
         input = download(argv[1]);
+        for (size_t i=0; i < argc; i++)
+        {
+            if (string(argv[i]) == "-bins && (argv[6] > 0) && (argv[6] < 10) ")
+            {
+                const auto bins=argv[6];
+            }
+            else
+            {
+                cerr << "Please enter the number of -bins...";
+                return 0;
+            }
+        }
     }
     else
     {
         input = read_input(cin, true);
     }
-
-
-    vector<string> bin_colour = inp(input.bin_count);
-
-    //Рассчет гистограммы
     const auto bins = make_histogram(input);
-
-    //Вывод гистограммы
+    vector<string> bin_colour = inp(input.bin_count);
     show_histogram_svg(bins, bin_colour);
 }

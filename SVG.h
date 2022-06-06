@@ -1,5 +1,6 @@
 #pragma once
-
+#include <winsock2.h>
+#include <windows.h>
 #include <vector>
 #include <iostream>
 
@@ -7,6 +8,8 @@ using namespace std;
 
 const size_t SCREEN_WIDTH = 80;
 const size_t MAX_ASTERISK = SCREEN_WIDTH -3-1;
+
+string get_system_info();
 
 void svg_begin(double width, double height);
 void svg_end();
