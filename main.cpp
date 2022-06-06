@@ -57,11 +57,11 @@ size_t write_data(void* items, size_t item_size, size_t item_count, void* ctx)
 Input download(const string& address)
 {
     stringstream buffer;
-
     curl_global_init(CURL_GLOBAL_ALL);
     CURL *curl = curl_easy_init();
     if(curl)
     {
+        double connect;
         CURLcode res;
         curl_easy_setopt(curl, CURLOPT_URL, address.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
@@ -71,6 +71,12 @@ Input download(const string& address)
         {
             cerr << curl_easy_strerror(res) << endl;
             exit(1);
+        }
+        if (CURLE_OK == res){
+            res = curl_easy_getinfo(curl, CURLINFO_CONNECT_TIME, &connect);
+        }
+        if (CURLE_OK == res){
+            printf("Time: %.1f", connect);
         }
     }
     curl_easy_cleanup(curl);
@@ -85,7 +91,7 @@ vector<size_t> make_histogram(Input data)
 
     find_minmax(data.numbers, min, max) ;
     vector<size_t> bins(data.bin_count,0); //переменная показывающая количество чисел в заданном диапазоне
-    double bin_size = (max - min)/ data.bin_count; //разме корзины
+    double bin_size = (max - min)/ data.bin_count; //размеp корзины
     for(size_t i=0; i < data.numbers.size(); i++)
     {
         bool found = false;
@@ -149,7 +155,7 @@ void show_histogram_text(const vector<size_t>& bins)
 }
 
 
-vector<string> input (size_t bin_count)
+vector<string> inp (size_t bin_count)
 {
     vector<string> bin_colour(bin_count);
     for(int i = 0; i < bin_count; i++)
@@ -178,16 +184,13 @@ int main(int argc, char* argv[])
         input = read_input(cin, true);
     }
 
-    /*
-        vector<string> bin_colour = input(bin_count);
-    */
+
+    vector<string> bin_colour = inp(input.bin_count);
 
     //Рассчет гистограммы
     const auto bins = make_histogram(input);
 
     //Вывод гистограммы
-    /*
-        show_histogram_svg(bins, bin_colour);
-    */
+    show_histogram_svg(bins, bin_colour);
     return 0;
 }
