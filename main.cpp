@@ -131,7 +131,8 @@ vector<string> input (size_t bin_count)
 int main(int argc, char* argv[])
 {
 
-    if (argc > 1){
+    if (argc > 1)
+    {
         curl_global_init(CURL_GLOBAL_ALL);
         CURL *curl = curl_easy_init();
         if(curl)
@@ -150,16 +151,13 @@ int main(int argc, char* argv[])
 
     //Ввод данных
     data = read_input(cin, true);
-    /*
-        vector<string> bin_colour = input(bin_count);
-    */
+
+    vector<string> bin_colour = input(bin_count);
 
     //Рассчет гистограммы
     const auto bins = make_histogram(data);
 
     //Вывод гистограммы
-    /*
-        show_histogram_svg(bins, bin_colour);
-    */
+    show_histogram_svg(bins, bin_colour);
     return 0;
 }
