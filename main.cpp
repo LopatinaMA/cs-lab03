@@ -85,7 +85,7 @@ vector<size_t> make_histogram(Input data)
 
     find_minmax(data.numbers, min, max) ;
     vector<size_t> bins(data.bin_count,0); //переменная показывающая количество чисел в заданном диапазоне
-    double bin_size = (max - min)/ data.bin_count; //разме корзины
+    double bin_size = (max - min)/ data.bin_count; //размеp корзины
     for(size_t i=0; i < data.numbers.size(); i++)
     {
         bool found = false;
@@ -149,7 +149,7 @@ void show_histogram_text(const vector<size_t>& bins)
 }
 
 
-vector<string> input (size_t bin_count)
+vector<string> inp (size_t bin_count)
 {
     vector<string> bin_colour(bin_count);
     for(int i = 0; i < bin_count; i++)
@@ -178,16 +178,13 @@ int main(int argc, char* argv[])
         input = read_input(cin, true);
     }
 
-    /*
-        vector<string> bin_colour = input(bin_count);
-    */
+
+    vector<string> bin_colour = inp(input.bin_count);
 
     //Рассчет гистограммы
     const auto bins = make_histogram(input);
 
     //Вывод гистограммы
-    /*
-        show_histogram_svg(bins, bin_colour);
-    */
+    show_histogram_svg(bins, bin_colour);
     return 0;
 }
