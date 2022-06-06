@@ -3,9 +3,11 @@
 #include <iostream>
 #include <vector>
 #include <curl/curl.h>
+#include <sstream>
+#include <string>
+#include <windows.h>
 
 using namespace std;
-
 
 
 vector <double> input_numbers (istream& in, size_t count)
@@ -43,13 +45,54 @@ Input read_input(istream& in, bool promt)
     return data;
 }
 
+
+size_t write_data(void* items, size_t item_size, size_t item_count, void* ctx)
+{
+    size_t data_size=item_size*item_count;
+    stringstream* buffer = reinterpret_cast<stringstream*>(ctx);
+    buffer->write(reinterpret_cast<const char*>(items), data_size);
+    return data_size;
+}
+
+
+Input download(const string& address)
+{
+    stringstream buffer;
+    curl_global_init(CURL_GLOBAL_ALL);
+    CURL *curl = curl_easy_init();
+    if(curl)
+    {
+        double connect;
+        CURLcode res;
+        curl_easy_setopt(curl, CURLOPT_URL, address.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+        res = curl_easy_perform(curl);
+        if (res)
+        {
+            cerr << curl_easy_strerror(res) << endl;
+            exit(1);
+        }
+        if (CURLE_OK == res){
+            res = curl_easy_getinfo(curl, CURLINFO_CONNECT_TIME, &connect);
+        }
+        if (CURLE_OK == res){
+            printf("Time: %.1f", connect);
+        }
+    }
+    curl_easy_cleanup(curl);
+    return read_input(buffer, false);
+
+}
+
+
 vector<size_t> make_histogram(Input data)
 {
     double min, max;
 
     find_minmax(data.numbers, min, max) ;
     vector<size_t> bins(data.bin_count,0); //переменная показывающая количество чисел в заданном диапазоне
-    double bin_size = (max - min)/ data.bin_count; //разме корзины
+    double bin_size = (max - min)/ data.bin_count; //размеp корзины
     for(size_t i=0; i < data.numbers.size(); i++)
     {
         bool found = false;
@@ -71,6 +114,7 @@ vector<size_t> make_histogram(Input data)
     }
     return bins;
 }
+
 
 void show_histogram_text(const vector<size_t>& bins)
 {
@@ -112,8 +156,7 @@ void show_histogram_text(const vector<size_t>& bins)
 }
 
 
-
-vector<string> input (size_t bin_count)
+vector<string> inp (size_t bin_count)
 {
     vector<string> bin_colour(bin_count);
     for(int i = 0; i < bin_count; i++)
@@ -128,36 +171,30 @@ vector<string> input (size_t bin_count)
     return bin_colour;
 }
 
+
 int main(int argc, char* argv[])
 {
+    DWORD info = GetVersion();
+    printf("System info: %u or 0x%x\n", info, info);
 
+    return 0;
+
+    Input input;
     if (argc > 1)
     {
-        curl_global_init(CURL_GLOBAL_ALL);
-        CURL *curl = curl_easy_init();
-        if(curl)
-        {
-            CURLcode res;
-            curl_easy_setopt(curl, CURLOPT_URL, argv[1]);
-            res = curl_easy_perform(curl);
-            curl_easy_cleanup(curl);
-        }
-        return 0;
+        input = download(argv[1]);
+    }
+    else
+    {
+        input = read_input(cin, true);
     }
 
 
-    curl_global_init(CURL_GLOBAL_ALL);
-    Input data;
-
-    //Ввод данных
-    data = read_input(cin, true);
-
-    vector<string> bin_colour = input(bin_count);
+    vector<string> bin_colour = inp(input.bin_count);
 
     //Рассчет гистограммы
-    const auto bins = make_histogram(data);
+    const auto bins = make_histogram(input);
 
     //Вывод гистограммы
     show_histogram_svg(bins, bin_colour);
-    return 0;
 }
